@@ -15,8 +15,8 @@ __kernel void calculate_forces(__global int *points, __global float4 * globalP, 
 
 }
 
-//__kernel void body_body(__global float4 * bi, __global float4 * bj, __global float4 * ai)
-//{
+__kernel void body_body(__global float4 * bi, __global float4 * bj, __global float4 * ai)
+{
 //    float4 r;
     
 //    r.x = bj.x - bi.x;
@@ -34,4 +34,4 @@ __kernel void calculate_forces(__global int *points, __global float4 * globalP, 
 //    ai->x += r.x * s;
 //    ai->y += r.y * s;
 //    ai->z += r.z * s;
-//}
+}
