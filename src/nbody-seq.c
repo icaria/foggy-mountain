@@ -81,10 +81,14 @@ cl_float4 * initializeAccelerations() {
 
 int main(int argc, char ** argv)
 {
+    // Pass an int * to the function
+    int *points = ((int *)malloc(sizeof(int)));
+    *points = POINTS;
+    
     cl_float4 * x = initializePositions();
     cl_float4 * a = initializeAccelerations();
     cl::Program program;
-    std::vector<cl::Device> devices;    
+    std::vector<cl::Device> devices;
 
     try { 
         // Get available platforms
@@ -128,8 +132,9 @@ int main(int argc, char ** argv)
         queue.enqueueWriteBuffer(bufferB, CL_TRUE, 0, POINTS * sizeof(cl_float4), a);
  
         // Set arguments to kernel
-        kernel.setArg(0, bufferA);
-        kernel.setArg(1, bufferB);
+        kernel.setArg(0, points);
+        kernel.setArg(1, bufferA);
+        kernel.setArg(2, bufferB);
  
         // Run the kernel on specific ND range
         cl::NDRange global(POINTS);
@@ -153,5 +158,6 @@ int main(int argc, char ** argv)
 
     free(x);
     free(a);
+    free(points);
     return 0;
 }
