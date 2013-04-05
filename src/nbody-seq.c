@@ -45,6 +45,18 @@ void calculateForces(int points, int global_id, cl_float4 * globalP, cl_float4 *
     globalA[global_id] = acc;
 }
 
+kernel void opencl_calculateForces(global int global_id, global cl_float4 * globalP, global cl_float4 * globalA)
+{
+    cl_float4 myPosition = globalP[global_id];
+    cl_float4 acc = {{0.0f, 0.0f, 0.0f, 1.0f}};
+
+    int id = get_global_id(0);
+    bodyBodyInteraction(myPosition, globalP[id], &acc);
+
+    globalA[global_id] = acc;
+
+}
+
 cl_float4 * initializePositions() {
     cl_float4 * pts = malloc(sizeof(cl_float4)*POINTS);
     int i;
@@ -79,7 +91,7 @@ int main(int argc, char ** argv)
 
     int i;
     for (i = 0; i < POINTS; i++)
-        calculateForces(POINTS, i, x, a);
+        opencl_calculateForces(i, x, a);
 
     for (i = 0; i < POINTS; i++)
         printf("(%2.2f,%2.2f,%2.2f,%2.2f) (%2.3f,%2.3f,%2.3f)\n", 
