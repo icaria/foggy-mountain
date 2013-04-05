@@ -1,4 +1,5 @@
-CFLAGS?=-Wall -O2 -lm
+CC=g++
+CFLAGS=-Wall -O2 -lm -lOpenCL
 
 default: all
 

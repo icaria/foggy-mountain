@@ -4,9 +4,14 @@
 #define __CL_ENABLE_EXCEPTIONS
 
 #include <CL/cl.hpp>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <iostream>
+#include <fstream>
+#include <utility>
+#include <vector>
 
 #define EPS 1e-10
 
@@ -48,7 +53,7 @@ void calculateForces(int points, int global_id, cl_float4 * globalP, cl_float4 *
 }
 
 cl_float4 * initializePositions() {
-    cl_float4 * pts = malloc(sizeof(cl_float4)*POINTS);
+    cl_float4 * pts = (cl_float4 *)malloc(sizeof(cl_float4)*POINTS);
     int i;
 
     srand(42L); // for deterministic results
@@ -65,7 +70,7 @@ cl_float4 * initializePositions() {
 }
 
 cl_float4 * initializeAccelerations() {
-    cl_float4 * pts = malloc(sizeof(cl_float4)*POINTS);
+    cl_float4 * pts = (cl_float4 *)malloc(sizeof(cl_float4)*POINTS);
     int i;
 
     for (i = 0; i < POINTS; i++) {
@@ -104,10 +109,10 @@ int main(int argc, char ** argv)
         cl::CommandQueue queue = cl::CommandQueue(context, devices[0]);
  
         // Read source file
-        std::ifstream sourceFile("calculateForces_kernel.cl");
+        std::ifstream sourceFile("src/calculate_forces_kernel.cl");
         std::string sourceCode(std::istreambuf_iterator<char>(sourceFile), (std::istreambuf_iterator<char>()));
         cl::Program::Sources source(1, std::make_pair(sourceCode.c_str(), sourceCode.length()+1));
- 
+
         // Make program of the source code in the context
         cl::Program program = cl::Program(context, source);
  
@@ -115,23 +120,19 @@ int main(int argc, char ** argv)
         program.build(devices);
  
         // Make kernel
-        cl::Kernel kernel(program, "calculateForces");
+        cl::Kernel kernel(program, "calculate_forces");
  
         // Create memory buffers
-        cl::Buffer bufferA = cl::Buffer(context, CL_MEM_READ_ONLY, POINTS * sizeof(int));
-        cl::Buffer bufferB = cl::Buffer(context, CL_MEM_READ_ONLY, sizeof(cl_float4));
-        cl::Buffer bufferC = cl::Buffer(context, CL_MEM_READ_WRITE, sizeof(cl_float4));
+        cl::Buffer bufferA = cl::Buffer(context, CL_MEM_READ_ONLY, POINTS * sizeof(cl_float4));
+        cl::Buffer bufferB = cl::Buffer(context, CL_MEM_READ_WRITE, POINTS * sizeof(cl_float4));
  
         // Copy lists A and B to the memory buffers
-        queue.enqueueWriteBuffer(bufferA, CL_TRUE, 0, POINTS * sizeof(int), global_id);
-        queue.enqueueWriteBuffer(bufferB, CL_TRUE, 0, sizeof(cl_float4), x);
-        queue.enqueueWriteBuffer(bufferC, CL_TRUE, 0, sizeof(cl_float4), a);
-
+        queue.enqueueWriteBuffer(bufferA, CL_TRUE, 0, POINTS * sizeof(cl_float4), x);
+        queue.enqueueWriteBuffer(bufferB, CL_TRUE, 0, POINTS * sizeof(cl_float4), a);
  
         // Set arguments to kernel
         kernel.setArg(0, bufferA);
         kernel.setArg(1, bufferB);
-        kernel.setArg(2, bufferC);
  
         // Run the kernel on specific ND range
         cl::NDRange global(POINTS);
@@ -139,10 +140,9 @@ int main(int argc, char ** argv)
         queue.enqueueNDRangeKernel(kernel, cl::NullRange, global, local);
  
         // Read buffer C into a local list
-        int *C = new int[LIST_SIZE];
-        queue.enqueueReadBuffer(bufferC, CL_TRUE, 0, LIST_SIZE * sizeof(int), C);
+        queue.enqueueReadBuffer(bufferB, CL_TRUE, 0, POINTS * sizeof(cl_float4), a);
  
-        for (i = 0; i < POINTS; i++)
+        for (int i = 0; i < POINTS; i++)
             printf("(%2.2f,%2.2f,%2.2f,%2.2f) (%2.3f,%2.3f,%2.3f)\n", 
                     x[i].x, x[i].y, x[i].z, x[i].w,
                     a[i].x, a[i].y, a[i].z);
@@ -150,11 +150,6 @@ int main(int argc, char ** argv)
     } catch(cl::Error error) {
         std::cout << error.what() << "(" << error.err() << ")" << std::endl;
     }
-
-
-    int i;
-    for (i = 0; i < POINTS; i++)
-        calculateForces(POINTS, i, x, a);
 
     free(x);
     free(a);
