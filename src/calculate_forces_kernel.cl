@@ -4,12 +4,13 @@ __kernel void calculate_forces(__global int * points, __global float4 * globalP,
 {
 
     int i = get_global_id(0);
+    int k;
 
     float4 myPosition = globalP[i];
     float4 acc = 0;
     acc.w = 1;
 
-    for(int k = 0; k < *points; k++) { 
+    for(k = 0; k < *points; k++) { 
         float4 r;
         float4 bj = globalP[k];
     
