@@ -86,11 +86,6 @@ int main(int argc, char ** argv)
     cl::Program program;
     std::vector<cl::Device> devices;    
 
-    int *global_id = new int[POINTS];
-    for(int i = 0; i < POINTS; i++) {
-        global_id[i] = i;
-    }
-
     try { 
         // Get available platforms
         std::vector<cl::Platform> platforms;
