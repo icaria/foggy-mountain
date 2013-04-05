@@ -112,7 +112,7 @@ int main(int argc, char ** argv)
         queue.enqueueNDRangeKernel(kernel, cl::NullRange, global, local);
  
         // Read buffer C into a local list
-        queue.enqueueReadBuffer(bufferB, CL_TRUE, 0, POINTS * sizeof(cl_float4), a);
+        queue.enqueueReadBuffer(bufferC, CL_TRUE, 0, POINTS * sizeof(cl_float4), a);
  
         for (int i = 0; i < POINTS; i++)
             printf("(%2.2f,%2.2f,%2.2f,%2.2f) (%2.3f,%2.3f,%2.3f)\n", 
