@@ -1,4 +1,4 @@
-__kernel void calculate_forces(__global int points, __global float4 * globalP, __global float4 * globalA)
+__kernel void calculate_forces(__global int *points, __global float4 * globalP, __global float4 * globalA)
 {
 
     int i = get_global_id(0);
