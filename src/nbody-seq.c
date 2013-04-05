@@ -83,6 +83,8 @@ int main(int argc, char ** argv)
 {
     cl_float4 * x = initializePositions();
     cl_float4 * a = initializeAccelerations();
+    cl::Program program;
+    std::vector<cl::Device> devices;    
 
     int *global_id = new int[POINTS];
     for(int i = 0; i < POINTS; i++) {
@@ -103,7 +105,7 @@ int main(int argc, char ** argv)
         cl::Context context(CL_DEVICE_TYPE_GPU, cps);
  
         // Get a list of devices on this platform
-        std::vector<cl::Device> devices = context.getInfo<CL_CONTEXT_DEVICES>();
+        devices = context.getInfo<CL_CONTEXT_DEVICES>();
  
         // Create a command queue and use the first device
         cl::CommandQueue queue = cl::CommandQueue(context, devices[0]);
@@ -114,7 +116,7 @@ int main(int argc, char ** argv)
         cl::Program::Sources source(1, std::make_pair(sourceCode.c_str(), sourceCode.length()+1));
 
         // Make program of the source code in the context
-        cl::Program program = cl::Program(context, source);
+        program = cl::Program(context, source);
  
         // Build program for these specific devices
         program.build(devices);
@@ -149,6 +151,9 @@ int main(int argc, char ** argv)
 
     } catch(cl::Error error) {
         std::cout << error.what() << "(" << error.err() << ")" << std::endl;
+        if (error.err() != CL_SUCCESS) {
+            std::cout << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices[0]) << std::endl;
+        }
     }
 
     free(x);
