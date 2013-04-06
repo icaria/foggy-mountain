@@ -90,7 +90,7 @@ int main(int argc, char ** argv)
     cl::Program program;
     std::vector<cl::Device> devices;
 
-    try { 
+    try {
         // Get available platforms
         std::vector<cl::Platform> platforms;
         cl::Platform::get(&platforms);
@@ -144,7 +144,7 @@ int main(int argc, char ** argv)
         kernel_bin.setArg(3, bufferG);
  
         // Run the kernel on specific ND range
-        cl::NDRange global_bin(POINTS);
+        cl::NDRange global_bin(BINS);
         cl::NDRange local_bin(1);
         queue.enqueueNDRangeKernel(kernel_bin, cl::NullRange, global_bin, local_bin);
         
