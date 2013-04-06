@@ -8,6 +8,8 @@ all: bin bin/nbody-seq
 
 part1: bin bin/nbody-opencl
 
+part2: bin bin/nbody-part2
+
 report: report.pdf
 
 bin:
@@ -18,6 +20,9 @@ bin/nbody-seq: src/nbody-seq.c
 
 bin/nbody-opencl: src/nbody-opencl.c
 	$(CC) $(CFLAGS) -o bin/nbody-opencl $<
+
+bin/nbody-part2: src/nbody-part2.c
+	$(CC) $(CFLAGS) -o bin/nbody-part2 $<
 
 report.pdf: report/report.tex
 	cd report && pdflatex report.tex && pdflatex report.tex
